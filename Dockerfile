@@ -15,12 +15,14 @@ RUN mkdir -p $HOME/.conda && chown -R 1000:1000 $HOME
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
+    cmake \
     curl \
     gcc \
     g++ \
     git \
     libxrender1 \
     libxext6 \
+    make \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 # -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9
