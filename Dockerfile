@@ -20,9 +20,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     git \
+    libboost-all-dev \
+    libeigen3-dev \
+    libgoogle-glog-dev \
+    libprotobuf-dev \
+    protobuf-compiler \
+    libhdf5-dev \
+    libatlas-base-dev \
+    python3-dev \
+    librdkit-dev \
+    python3-numpy \
+    python3-pip \
+    python3-pytest \
+    libjsoncpp-dev
     libxrender1 \
     libxext6 \
     make \
+    wget \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 # -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9
