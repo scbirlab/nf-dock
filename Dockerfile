@@ -30,7 +30,7 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cd gnina && \
     mkdir build && \
     cd build && \
-    cmake ..  -DCMAKE_CUDA_ARCHITECTURES=all
+    cmake ..  -DCMAKE_CUDA_ARCHITECTURES=all && \
     make && \
     make install
 # NVIDIA runtime: tell the container to use host GPU driver
