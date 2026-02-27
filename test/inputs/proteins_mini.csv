@@ -1,0 +1,11 @@
+protein_id,pdb_id,chain,uniprot_id,organism,gene_name
+ecoli_folA,1RX2,A,P0ABQ4,Escherichia coli,folA
+ecoli_murA,1UAE,A,P0A749,Escherichia coli,murA
+ecoli_gyrB,1KZN,A,P0AES6,Escherichia coli,gyrB
+ecoli_fabI,1C14,A,P0AEK4,Escherichia coli,fabI
+ecoli_dfrB,1RA2,A,P0ABQ4,Escherichia coli,folA
+mtb_inhA,1P44,A,P9WGR1,Mycobacterium tuberculosis,inhA
+mtb_serA,AF2_P9WNX1,A,P9WNX1,Mycobacterium tuberculosis,serA
+saur_dhfr,3FRE,A,P0A017,Staphylococcus aureus,dfrB
+saur_fabI,4CV1,A,Q5HG28,Staphylococcus aureus,fabI
+kpneu_kpc,5UJ3,A,Q9EVY4,Klebsiella pneumoniae,blaKPC

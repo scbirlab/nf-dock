@@ -1,0 +1,25 @@
+name: nf-env
+
+channels:
+    - conda-forge
+    - bioconda
+
+dependencies:
+    - python==3.13
+    - pip
+    # ── Docking ──
+    - bioconda::gnina>=1.3
+    - bioconda::fpocket
+    - conda-forge::openbabel  # mol format conversions
+    # ── Structure prep ──
+    - conda-forge::pdbfixer
+    - conda-forge::openssl
+    - conda-forge::unzip
+    - pip:
+        - biopython
+        - pdb-tools
+        - numpy
+        - pandas
+        - rdkit
+        - scikit-learn
+        - 'multiqc>=1.21'

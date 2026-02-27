@@ -1,0 +1,13 @@
+.nextflow*
+.conda/
+.docker/
+.singularity/
+/outputs/
+/work/
+/test/outputs
+/test/work
+/test/*.html
+/test/slurm-*
+~$*.xlsx
+*.html
+*.requirements.txt
