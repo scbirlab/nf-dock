@@ -5,11 +5,11 @@ channels:
     - bioconda
 
 dependencies:
-    - python==3.13
+    - python==3.12
     - pip
     # ── Docking ──
     - bioconda::gnina>=1.3
-    - bioconda::fpocket
+    - conda-forge::fpocket
     - conda-forge::openbabel  # mol format conversions
     # ── Structure prep ──
     - conda-forge::pdbfixer
