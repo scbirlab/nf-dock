@@ -44,7 +44,7 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cd gnina && \
     mkdir build && \
     cd build && \
-    cmake ..  -DCMAKE_CUDA_ARCHITECTURES=all && \
+    cmake .. -DCMAKE_CUDA_ARCHITECTURES=all -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env && \
     make && \
     make install
 USER 1000

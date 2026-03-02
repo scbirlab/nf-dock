@@ -1,4 +1,4 @@
-name: nf-env
+name: nf-dock
 
 channels:
     - conda-forge
@@ -17,6 +17,8 @@ dependencies:
     - conda-forge::openssl
     - conda-forge::unzip
     # utils
+    - conda-forge::cuda-toolkit
+    - conda-forge::cuda-nvcc
     - conda-forge::libboost
     - conda-forge::jsoncpp
     - conda-forge::libprotobuf
