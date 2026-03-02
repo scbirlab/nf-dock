@@ -45,6 +45,7 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cmake .. \
         -DCMAKE_CUDA_ARCHITECTURES=all \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DUSE_SYSTEM_NVTX=1 \
         -DZLIB_ROOT=/opt/conda/envs/env \
         -DZLIB_LIBRARY=/opt/conda/envs/env/lib/libz.so \
         -DZLIB_INCLUDE_DIR=/opt/conda/envs/env/include && \
