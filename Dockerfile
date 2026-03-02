@@ -20,33 +20,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     git \
-    libboost-all-dev \
-    libeigen3-dev \
-    libgoogle-glog-dev \
-    libprotobuf-dev \
-    protobuf-compiler \
-    libhdf5-dev \
-    libatlas-base-dev \
-    python3-dev \
-    librdkit-dev \
-    python3-numpy \
-    python3-pip \
-    python3-pytest \
-    libjsoncpp-dev
     libxrender1 \
     libxext6 \
     make \
     wget \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
-# -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9
-RUN git clone https://github.com/gnina/gnina.git && \
-    cd gnina && \
-    mkdir build && \
-    cd build && \
-    cmake ..  -DCMAKE_CUDA_ARCHITECTURES=all && \
-    make && \
-    make install
 # NVIDIA runtime: tell the container to use host GPU driver
 # These are picked up by nvidia-container-toolkit / Singularity --nv
 ENV NVIDIA_VISIBLE_DEVICES=all
@@ -58,6 +37,17 @@ RUN micromamba create -n env -f /tmp/environment.yml && \
     micromamba clean --all --yes
 
 ENV PATH=$MAMBA_ROOT_PREFIX/envs/env/bin:$PATH
+
+USER root
+# -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9
+RUN git clone https://github.com/gnina/gnina.git && \
+    cd gnina && \
+    mkdir build && \
+    cd build && \
+    cmake ..  -DCMAKE_CUDA_ARCHITECTURES=all && \
+    make && \
+    make install
+USER 1000
 
 # Smoke test: confirm key tools are on PATH and importable
 RUN gnina --help | head -1 && \
