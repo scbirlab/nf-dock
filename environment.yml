@@ -40,6 +40,7 @@ dependencies:
         - rdkit
         - scikit-learn
         - 'multiqc>=1.21'
+        - pytest
         - torch>=2.10
         - torchvision
         - 'nvidia-cuda-runtime-cu12>=12.6,<12.7'
