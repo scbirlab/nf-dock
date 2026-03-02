@@ -47,6 +47,7 @@ RUN git clone https://github.com/gnina/gnina.git && \
         -DCMAKE_CUDA_ARCHITECTURES=all \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DCMAKE_PREFIX_PATH=$MAMBA_ROOT_PREFIX/envs/env \
+        -DCMAKE_MODULE_PATH=$MAMBA_ROOT_PREFIX/envs/env \
         -DUSE_SYSTEM_NVTX=1 \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
