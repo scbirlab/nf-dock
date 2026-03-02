@@ -45,10 +45,11 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cmake .. \
         -DCMAKE_CUDA_ARCHITECTURES=all \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DCMAKE_PREFIX_PATH=$MAMBA_ROOT_PREFIX/envs/env \
         -DUSE_SYSTEM_NVTX=1 \
-        -DZLIB_ROOT=/opt/conda/envs/env \
-        -DZLIB_LIBRARY=/opt/conda/envs/env/lib/libz.so \
-        -DZLIB_INCLUDE_DIR=/opt/conda/envs/env/include && \
+        -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
+        -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \
     make && \
     make install
 USER 1000
