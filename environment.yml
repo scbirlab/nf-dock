@@ -17,6 +17,7 @@ dependencies:
     - conda-forge::openssl
     - conda-forge::unzip
     # utils
+    - conda-forge::cmake 
     - conda-forge::cuda-toolkit
     - conda-forge::cuda-nvcc
     - conda-forge::libboost
@@ -25,6 +26,7 @@ dependencies:
     - conda-forge::protobuf
     - conda-forge::hdf5
     - conda-forge::glog
+    - conda-forge::zlib
     - bioconda::atlas
     - omnia::eigen3
     - pip:

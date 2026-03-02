@@ -15,12 +15,10 @@ RUN mkdir -p $HOME/.conda && chown -R 1000:1000 $HOME
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     ca-certificates \
-    cmake \
     curl \
     gcc \
     g++ \
     git \
-    libxrender1 \
     libxext6 \
     make \
     wget \
@@ -44,7 +42,12 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cd gnina && \
     mkdir build && \
     cd build && \
-    cmake .. -DCMAKE_CUDA_ARCHITECTURES=all -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env && \
+    cmake .. \
+        -DCMAKE_CUDA_ARCHITECTURES=all \
+        -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DZLIB_ROOT=/opt/conda/envs/env \
+        -DZLIB_LIBRARY=/opt/conda/envs/env/lib/libz.so \
+        -DZLIB_INCLUDE_DIR=/opt/conda/envs/env/include && \
     make && \
     make install
 USER 1000
