@@ -19,8 +19,8 @@ dependencies:
     # utils
     - conda-forge::cmake 
     - conda-forge::cuda-toolkit==12.6.3
-    - conda-forge::cuda-nvtx-dev==12.6
-    - conda-forge::cuda-nvcc==12.6
+    - conda-forge::cuda-nvtx-dev>=12.6
+    - conda-forge::cuda-nvcc>=12.6
     - conda-forge::libboost
     - conda-forge::jsoncpp
     - conda-forge::libprotobuf
