@@ -17,11 +17,13 @@ dependencies:
     - conda-forge::openssl
     - conda-forge::unzip
     # utils
-    - conda-forge::cmake 
+    - conda-forge::cmake
+    - conda-forge::cudnn
     - conda-forge::cuda-toolkit==12.6.3
     - conda-forge::cuda-nvtx-dev>=12.6
     - conda-forge::cuda-nvcc>=12.6
-    - conda-forge::libboost
+    - conda-forge::boost
+    - conda-forge::boost-cpp      
     - conda-forge::jsoncpp
     - conda-forge::libprotobuf
     - conda-forge::protobuf
