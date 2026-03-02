@@ -40,13 +40,13 @@ dependencies:
         - 'multiqc>=1.21'
         - torch>=2.10
         - torchvision
-        - 'nvidia-cuda-runtime-cu12=12.6'
-        - 'nvidia-cuda-nvrtc-cu12=12.6'
-        - 'nvidia-cublas-cu12=12.6'
-        - 'nvidia-cudnn-cu12=9.1'
-        - 'nvidia-cufft-cu12=11.0'
-        - 'nvidia-curand-cu12=10.3'
-        - 'nvidia-cusolver-cu12=11.5'
-        - 'nvidia-cusparse-cu12=12.6'
+        - 'nvidia-cuda-runtime-cu12>=12.6,<12.7'
+        - 'nvidia-cuda-nvrtc-cu12>=12.6'
+        - 'nvidia-cublas-cu12>=12.6'
+        - 'nvidia-cudnn-cu12>=9.1'
+        - 'nvidia-cufft-cu12>=11.0'
+        - 'nvidia-curand-cu12>=10.3'
+        - 'nvidia-cusolver-cu12>=11.5'
+        - 'nvidia-cusparse-cu12>=12.6'
         - --extra-index-url https://pypi.ngc.nvidia.com
         - --extra-index-url https://download.pytorch.org/whl/cu126
