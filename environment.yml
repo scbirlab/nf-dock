@@ -47,6 +47,6 @@ dependencies:
         - 'nvidia-cufft-cu12>=11.0'
         - 'nvidia-curand-cu12>=10.3'
         - 'nvidia-cusolver-cu12>=11.5'
-        - 'nvidia-cusparse-cu12>=12.6'
+        - 'nvidia-cusparse-cu12>=12'
         - --extra-index-url https://pypi.ngc.nvidia.com
         - --extra-index-url https://download.pytorch.org/whl/cu126
