@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     git \
     libxext6 \
+    librdkit-dev python3-numpy \
     make \
     wget \
     && update-ca-certificates \
