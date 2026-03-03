@@ -26,8 +26,8 @@ dependencies:
     - conda-forge::cuda-toolkit==12.6.3
     - conda-forge::cuda-nvtx-dev>=12.6
     - conda-forge::cuda-nvcc>=12.6   
-    - conda-forge::jsoncpp
-    - conda-forge::libprotobuf
+    # - conda-forge::jsoncpp
+    # - conda-forge::libprotobuf
     # - conda-forge::protobuf
     # - conda-forge::hdf5
     # - conda-forge::glog
