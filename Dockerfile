@@ -58,6 +58,7 @@ RUN git clone https://github.com/gnina/libmolgrid.git && \
     cd build && \
     cmake \
         -DCMAKE_PREFIX_PATH=$MAMBA_ROOT_PREFIX/envs/env \
+        -DCMAKE_CUDA_ARCHITECTURES=all \
         -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
         .. && \
     make && \
@@ -67,7 +68,9 @@ RUN git clone https://github.com/gnina/gnina.git && \
     mkdir build && \
     cd build && \
     cmake ..  \
+        -DCMAKE_CUDA_ARCHITECTURES=all \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$MAMBA_ROOT_PREFIX/envs/env" \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
         -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \
