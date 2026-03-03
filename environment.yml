@@ -11,7 +11,7 @@ dependencies:
     - pip
     # ── Docking ──
     # - bioconda::gnina>=1.3
-    - gnina::molgrid
+    # - gnina::molgrid
     - conda-forge::fpocket
     - conda-forge::openbabel>=3.0  # mol format conversions
     # ── Structure prep ──

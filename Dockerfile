@@ -52,21 +52,19 @@ USER root
 #     cmake -DWITH_MAEPARSER=OFF -DWITH_COORDGEN=OFF -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON .. && \
 #     make && \
 #     make install
-# RUN git clone https://github.com/gnina/libmolgrid.git && \
-#     cd libmolgrid && \
-#     mkdir build && \
-#     cd build && \
-#     cmake -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include .. && \
-#     make && \
-#     make install
+RUN git clone https://github.com/gnina/libmolgrid.git && \
+    cd libmolgrid && \
+    mkdir build && \
+    cd build && \
+    cmake -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include .. && \
+    make && \
+    make install
 RUN git clone https://github.com/gnina/gnina.git && \
     cd gnina && \
     mkdir build && \
     cd build && \
     cmake ..  \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
-        -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
-        -DLIBMOLGRID_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
         -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \
