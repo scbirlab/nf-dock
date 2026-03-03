@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ \
     git \
     libxext6 \
-    librdkit-dev python3-numpy \
     make \
     wget \
     && update-ca-certificates \
@@ -46,11 +45,12 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cmake .. \
         -DCMAKE_CUDA_ARCHITECTURES=all \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
-        -DCMAKE_PREFIX_PATH=$MAMBA_ROOT_PREFIX/envs/env \
-        -DCMAKE_MODULE_PATH=$MAMBA_ROOT_PREFIX/envs/env \
+        -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$MAMBA_ROOT_PREFIX/envs/env" \
+        -DCMAKE_INSTALL_PREFIX=$MAMBA_ROOT_PREFIX/envs/env \
         -DUSE_SYSTEM_NVTX=1 \
         -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env \
-        -DOPENBABEL3_INCLUDE_DIR=MAMBA_ROOT_PREFIX/envs/env \
+        -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
+        -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
         -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \

@@ -12,6 +12,7 @@ dependencies:
     # - bioconda::gnina>=1.3
     - conda-forge::fpocket
     - conda-forge::openbabel  # mol format conversions
+    - conda-forge::molgrid
     # ── Structure prep ──
     - conda-forge::pdbfixer
     - conda-forge::openssl
@@ -35,7 +36,6 @@ dependencies:
     - pip:
         - biopython
         - pdb-tools
-        - molgrid
         - numpy
         - pandas
         - rdkit
