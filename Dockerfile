@@ -25,7 +25,7 @@ RUN mkdir -p $HOME/.conda && chown -R 1000:1000 $HOME
 #     && update-ca-certificates \
 #     && rm -rf /var/lib/apt/lists/*
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential git cmake wget libeigen3-dev \
+    build-essential git cmake wget libboost-all-dev libeigen3-dev \
     libgoogle-glog-dev libprotobuf-dev protobuf-compiler libhdf5-dev \
     libatlas-base-dev python3-dev librdkit-dev python3-numpy python3-pip python3-pytest \
     libjsoncpp-dev \
