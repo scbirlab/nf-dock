@@ -44,11 +44,10 @@ RUN git clone https://github.com/gnina/gnina.git && \
     cd build && \
     cmake .. \
         -DCMAKE_CUDA_ARCHITECTURES=all \
+        -DUSE_SYSTEM_NVTX=1 \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$MAMBA_ROOT_PREFIX/envs/env" \
         -DCMAKE_INSTALL_PREFIX=$MAMBA_ROOT_PREFIX/envs/env \
-        -DUSE_SYSTEM_NVTX=1 \
-        -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env \
         -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
         -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
