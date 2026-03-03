@@ -14,8 +14,7 @@ dependencies:
     # - gnina::molgrid
     - conda-forge::fpocket
     - conda-forge::openbabel>=3.0  # mol format conversions
-    - conda-forge::boost-cpp      # headers + BoostConfig.cmake
-    - conda-forge::libboost-devel # compiled .so components
+    - conda-forge::boost
     # ── Structure prep ──
     - conda-forge::pdbfixer
     - conda-forge::openssl
