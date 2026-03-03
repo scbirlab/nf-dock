@@ -6,7 +6,7 @@ channels:
     - omnia
 
 dependencies:
-    - python==3.12
+    - python>=3.10
     - pip
     # ── Docking ──
     # - bioconda::gnina>=1.3
