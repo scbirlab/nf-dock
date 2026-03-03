@@ -45,18 +45,29 @@ RUN micromamba create -n env -f /tmp/environment.yml && \
 ENV PATH=$MAMBA_ROOT_PREFIX/envs/env/bin:$PATH
 
 USER root
-RUN git clone https://github.com/dkoes/openbabel.git && \
-    cd openbabel && \
+# RUN git clone https://github.com/dkoes/openbabel.git && \
+#     cd openbabel && \
+#     mkdir build && \
+#     cd build && \
+#     cmake -DWITH_MAEPARSER=OFF -DWITH_COORDGEN=OFF -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON .. && \
+#     make && \
+#     make install
+RUN git clone https://github.com/gnina/libmolgrid.git && \
+    cd libmolgrid && \
     mkdir build && \
     cd build && \
-    cmake -DWITH_MAEPARSER=OFF -DWITH_COORDGEN=OFF -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON .. && \
+    cmake -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include .. && \
     make && \
     make install
 RUN git clone https://github.com/gnina/gnina.git && \
     cd gnina && \
     mkdir build && \
     cd build && \
-    cmake ..  # -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9 && \
+    cmake ..  \
+        -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
+        -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
+        -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \
     make && \
     make install
 # -DUSE_SYSTEM_NVTX=1 may be needed with pytorch 2.7.0 and CUDA 12.9

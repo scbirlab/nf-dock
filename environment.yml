@@ -11,13 +11,13 @@ dependencies:
     # ── Docking ──
     # - bioconda::gnina>=1.3
     - conda-forge::fpocket
-    # - conda-forge::openbabel  # mol format conversions
+    - conda-forge::openbabel>=3.0  # mol format conversions
     # ── Structure prep ──
     - conda-forge::pdbfixer
     - conda-forge::openssl
     - conda-forge::unzip
     # utils
-    - conda-forge::cmake
+    - conda-forge::cmake>=3.12
     - conda-forge::cudnn
     - conda-forge::cuda-toolkit==12.6.3
     - conda-forge::cuda-nvtx-dev>=12.6
