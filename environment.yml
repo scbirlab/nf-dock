@@ -19,7 +19,7 @@ dependencies:
     - conda-forge::openssl
     - conda-forge::unzip
     # utils
-    - conda-forge::cmake>=3.12
+    # - conda-forge::cmake>=3.12
     - conda-forge::cudnn
     - conda-forge::cuda-toolkit==12.6.3
     - conda-forge::cuda-nvtx-dev>=12.6
