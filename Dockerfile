@@ -47,9 +47,13 @@ RUN git clone https://github.com/gnina/gnina.git && \
         -DUSE_SYSTEM_NVTX=1 \
         -DCUDAToolkit_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DCMAKE_PREFIX_PATH="$(python -c 'import torch; print(torch.utils.cmake_prefix_path)');$MAMBA_ROOT_PREFIX/envs/env" \
+        -DNumPy_DIR=$MAMBA_ROOT_PREFIX/envs/env/lib/python3.??/site-packages/numpy/_core/include \
         -DCMAKE_INSTALL_PREFIX=$MAMBA_ROOT_PREFIX/envs/env \
         -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
         -DLIBMOLGRID_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
+        -DRDKIT_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
+        -DRDKIT_LIBRARIES=$MAMBA_ROOT_PREFIX/envs/env/lib \
+        -DLIBMOLGRID_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib \
         -DZLIB_ROOT=$MAMBA_ROOT_PREFIX/envs/env \
         -DZLIB_LIBRARY=$MAMBA_ROOT_PREFIX/envs/env/lib/libz.so \
         -DZLIB_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include && \
