@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-module purge
-module load Anaconda3 Singularity
-
-curl -OL https://github.com/ncbi/pgap/raw/prod/scripts/pgap.py
-
