@@ -1,4 +1,4 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
 set -xeuo pipefail
 
@@ -17,6 +17,7 @@ fi
 nextflow run "$script_dir"/.. \
     -resume $docker_flag \
     -c "$script_dir"/nextflow.config \
+    -work-dir "$script_dir"/work \
     --sample_sheet "$script_dir"/inputs/sample-sheet.csv \
     --inputs "$script_dir"/inputs \
     --outputs "$script_dir"/outputs

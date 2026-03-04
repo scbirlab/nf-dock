@@ -1,0 +1,12 @@
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AE/AEAA.smi https://files.docking.org/2D/AE/AEAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AE/AEAB.smi https://files.docking.org/2D/AE/AEAB.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AF/AFAA.smi https://files.docking.org/2D/AF/AFAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AF/AFAB.smi https://files.docking.org/2D/AF/AFAB.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AG/AGAA.smi https://files.docking.org/2D/AG/AGAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/AG/AGAB.smi https://files.docking.org/2D/AG/AGAB.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BE/BEAA.smi https://files.docking.org/2D/BE/BEAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BE/BEAB.smi https://files.docking.org/2D/BE/BEAB.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BF/BFAA.smi https://files.docking.org/2D/BF/BFAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BF/BFAB.smi https://files.docking.org/2D/BF/BFAB.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BG/BGAA.smi https://files.docking.org/2D/BG/BGAA.smi
+curl --remote-time --fail --create-dirs -o test/inputs/smiles/BG/BGAB.smi https://files.docking.org/2D/BG/BGAB.smi

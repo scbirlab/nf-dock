@@ -66,13 +66,17 @@ log.info """${pipeline_name}
 ========================================================================================
 */
 include {
-   DETECT_POCKET
+   DETECT_POCKET;
+   SplitPockets
 } from './modules/fpocket.nf'
 include {
-   PREPARE_LIGANDS
+    SplitLigands;
+    PREPARE_LIGANDS
 } from './modules/ligands.nf'
 include {
-   GNINA_DOCK
+   GNINA_DOCK;
+   Extract_Gnina_scores;
+   AGGREGATE_SCORES;
 } from './modules/gnina.nf'
 include {
    FETCH_STRUCTURES
@@ -85,9 +89,6 @@ include {
     PREDICT_FULL_MATRIX
 } from './modules/surrogate.nf'
 include {
-    AGGREGATE_SCORES
-} from './modules/scores.nf'
-include {
     VALIDATE;
     ASSIGN_TARGETS
 } from './modules/annotate.nf'
@@ -95,7 +96,10 @@ include {
 workflow {
 
     // ── Parse protein metadata ──
-    Channel.fromPath( "${params.sample_sheet}", checkIfExists: true )
+    Channel.fromPath( 
+        "${params.sample_sheet}", 
+        checkIfExists: true,
+    )
         .splitCsv(header: true)
         .map { row -> tuple( row.protein_id, row.pdb_id, row.chain ? row.chain : "A", row.uniprot_id ) }
         .set { proteins_ch }
@@ -104,17 +108,34 @@ workflow {
     proteins_ch 
         | FETCH_STRUCTURES
         | DETECT_POCKET
-    Channel.fromPath( "${params.inputs}/${params.ligands_sdf}", checkIfExists: true ) 
+
+    SplitLigands(
+        Channel.fromPath( 
+            "${params.inputs}/${params.ligands_sdf}", 
+            checkIfExists: true,
+        ),
+        Channel.value( 10 ),
+    )
+    SplitLigands.out
+        .flatten()
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──
-    DETECT_POCKET.out
-        .combine( PREPARE_LIGANDS.out.flatten() )
+    DETECT_POCKET.out.main
+        | SplitPockets
+    SplitPockets.out
+        .transpose()
+        .combine( 
+            PREPARE_LIGANDS.out
+        )
         | GNINA_DOCK
 
+    GNINA_DOCK.out.main
+        | Extract_Gnina_scores
+
     // Collect all score files and aggregate
-    GNINA_DOCK.out
-        .map { v -> v[2] }
+    Extract_Gnina_scores.out
+        .map { v -> v[-1] }
         .collect() 
         | AGGREGATE_SCORES
 
@@ -128,7 +149,10 @@ workflow {
             // In practice, you'd extract sequences from PDBs or use a pre-made FASTA
 
         COMPUTE_FEATURES(
-            Channel.fromPath( "${params.inputs}/${params.ligands_sdf}", checkIfExists: true ),
+            Channel.fromPath( 
+                "${params.inputs}/${params.ligands_sdf}", 
+                checkIfExists: true,
+            ),
             protein_structures,
         )
 

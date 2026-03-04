@@ -1,44 +1,109 @@
-process PREPARE_LIGANDS {
-    /*
-     * Standardise, generate 3D conformers, protonate at pH 7.4.
-     * Split into individual mol2/SDF chunks for parallel docking.
-     */
+process SplitLigands {
+
+    tag "${ligands}"
+
+    publishDir(
+        "${params.outputs}/ligands/splits", 
+        mode: 'copy', 
+        saveAs: { v -> "${ligands.simpleName}-${v}"},
+    )
 
     input:
-    path(ligands_sdf)
+    path ligands
+    val batch_size
 
     output:
-    path("chunks/*.sdf")
+    path "lib_*"
+
+    script:
+    if ( ligands.extension == "smi" ) {
+        """
+        split -l${batch_size} -d "${ligands}" lib_ --additional-suffix=".smi"
+
+        """
+    }
+    else {
+        """
+        #!/usr/bin/env python
+
+        from itertools import batched
+
+        from rdkit import Chem
+        from rdkit.Chem import AllChem
+
+        with Chem.SDMolSupplier("${ligands}") as supp:
+            for i, mols in enumerate(batched(supp, ${batch_size})):
+                with open(f"lib_{i:06d}.sdf", "a") as f:
+                    for j, mol in enumerate(mols):
+                        if mol is None:
+                            continue
+                        if not mol.HasProp("_Name"):
+                            mol.SetProp("_Name", f"{i}-{j}")
+                        mol.SetProp("smiles", Chem.MolToSmiles(mol))
+                        with Chem.SDWriter(f) as w:
+                            w.write(mol)
+
+        """
+    }
+}
+
+process PREPARE_LIGANDS {
+
+    tag "${ligands}"
+
+    publishDir(
+        "${params.outputs}/ligands", 
+        mode: 'copy', 
+        saveAs: { v -> "${ligands.simpleName}-${v}"},
+    )
+
+    input:
+    path ligands
+
+    output:
+    path "mol.sdf"
 
     script:
     """
-    mkdir -p chunks
+    #!/usr/bin/env python
 
-    python3 << 'PYEOF'
-from rdkit import Chem
-from rdkit.Chem import AllChem, rdMolDescriptors
-import os, math
+    from functools import partial
+    import sys
 
-suppl = Chem.SDMolSupplier("${ligands_sdf}", removeHs=False)
-mols = []
-for mol in suppl:
-    if mol is None:
-        continue
-    # Standardise
-    mol = Chem.AddHs(mol)
-    AllChem.EmbedMolecule(mol, AllChem.ETKDGv3())
-    AllChem.MMFFOptimizeMolecule(mol)
-    mols.append(mol)
+    from rdkit import Chem
+    from rdkit.Chem import AllChem
 
-# Chunk into batches of 100 for parallel docking
-chunk_size = 100
-n_chunks = math.ceil(len(mols) / chunk_size)
-for i in range(n_chunks):
-    chunk = mols[i*chunk_size : (i+1)*chunk_size]
-    writer = Chem.SDWriter(f"chunks/chunk_{i:05d}.sdf")
-    for m in chunk:
-        writer.write(m)
-    writer.close()
-PYEOF
+    if "${ligands}".endswith((".sdf", ".sdf.gz")):
+        opener = partial(Chem.SDMolSupplier, removeHs=False)
+    elif "${ligands}".endswith((".smi", ".smi.gz")):
+        opener = partial(Chem.SmilesMolSupplier, titleLine=False)
+
+    params = AllChem.ETKDGv3()
+    params.useRandomCoords = True  # fallback for difficult geometries
+
+    with opener("${ligands}") as supp:
+        for i, mol in enumerate(supp):
+            if mol is None:
+                continue
+            if not mol.HasProp("_Name"):
+                mol.SetProp("_Name", f"{i}-{j}")
+            if not mol.HasProp("smiles"):
+                mol.SetProp("smiles", Chem.MolToSmiles(mol))
+            # Standardise
+            mol = Chem.AddHs(mol)
+            Chem.SanitizeMol(mol)
+            try:
+                result = AllChem.EmbedMolecule(mol, params)
+            except Exception as e:
+                print(mol, e, file=sys.stderr)
+                result = -1
+            if result == -1:
+                print(f"[WARN] mol {i}: embedding failed, skipping", file=sys.stderr)
+                continue
+            AllChem.MMFFOptimizeMolecule(mol)
+            with open("mol.sdf", "a") as f:
+                with Chem.SDWriter(f) as w:
+                    w.write(mol)
+
     """
 }

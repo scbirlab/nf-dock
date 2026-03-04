@@ -5,53 +5,97 @@ process DETECT_POCKET {
      *
      * If a co-crystallised ligand exists, use its centroid instead.
      */
-    tag "${protein_id}"
+    tag "${id}"
+
+    publishDir(
+        "${params.outputs}/pockets", 
+        mode: 'copy', 
+        saveAs: { v -> "${id}-${uniprot_id}-${v}"},
+    )
 
     input:
-    tuple val(protein_id), val(uniprot_id), path(structure)
+    tuple val( id ), val( uniprot_id ), path( structure )
 
     output:
-    tuple val(protein_id), val(uniprot_id), path(structure), path("${protein_id}_pocket.json")
+    tuple val( id ), val( uniprot_id ), path( structure ), path( "pocket.json" ), emit: main
+    tuple val( id ), val( uniprot_id ), path( "info.txt" ), emit: info
 
     script:
     """
     fpocket -f "${structure}"
+    mv *_out/*_info.txt info.txt
 
     # Parse top-ranked pocket, extract center + residues
-    python3 << 'PYEOF'
-import json, glob, re
-from pathlib import Path
+    python -c '
+    from glob import glob
+    import json
+    import os
 
-# fpocket outputs to <name>_out/
-out_dir = glob.glob("*_out")[0]
-pocket_pdb = sorted(glob.glob(f"{out_dir}/pockets/pocket1_atm.pdb"))
+    # fpocket outputs to <name>_out/
+    out_dir = "*_out"
+    pocket_pdb = sorted(glob(os.path.join(out_dir, "pockets", "pocket*_atm.pdb")))[:3]
+    #pocket_pdb = sorted(glob(os.path.join(out_dir, "*_out.pdb")))
 
-if not pocket_pdb:
-    # Fallback: whole protein centroid (blind docking)
-    pocket = {"center": [0, 0, 0], "size": [30, 30, 30], "residues": []}
-else:
-    xs, ys, zs, residues = [], [], [], set()
-    with open(pocket_pdb[0]) as f:
-        for line in f:
-            if line.startswith(("ATOM", "HETATM")):
-                x, y, z = float(line[30:38]), float(line[38:46]), float(line[46:54])
-                xs.append(x); ys.append(y); zs.append(z)
-                resid = line[21:26].strip()
-                residues.add(resid)
+    pocket_list = []
+    if not pocket_pdb:
+        # Fallback: whole protein centroid (blind docking)
+        pocket_list = [
+            {"center": [0, 0, 0], "size": [30, 30, 30], "residues": [], "blind": True, "id": 0}
+        ]
+    else:
+        xs, ys, zs, residues = [], [], [], set()
+        for i, pocket in enumerate(pocket_pdb):
+            with open(pocket) as f:
+                for line in f:
+                    if line.startswith(("ATOM", "HETATM")):
+                        x, y, z = float(line[30:38]), float(line[38:46]), float(line[46:54])
+                        xs.append(x); ys.append(y); zs.append(z)
+                        resid = line[21:26].strip()
+                        residues.add(resid)
 
-    cx, cy, cz = sum(xs)/len(xs), sum(ys)/len(ys), sum(zs)/len(zs)
-    pad = ${params.box_padding}
-    sx = max(xs) - min(xs) + 2*pad
-    sy = max(ys) - min(ys) + 2*pad
-    sz = max(zs) - min(zs) + 2*pad
-    pocket = {
-        "center": [round(cx,2), round(cy,2), round(cz,2)],
-        "size":   [round(sx,2), round(sy,2), round(sz,2)],
-        "residues": sorted(residues)
-    }
+            cx, cy, cz = sum(xs) / len(xs), sum(ys) / len(ys), sum(zs) / len(zs)
+            pad = ${params.box_padding}
+            sx, sy, sz = (
+                max(dim) - min(dim) + 2. * pad
+                for dim in (xs, ys, zs)
+            )
+            pocket_list.append({
+                "center": [cx, cy, cz],
+                "size":   [sx, sy, sz],
+                "residues": sorted(residues),
+                "blind": False,
+                "id": i,
+            })
 
-with open("${protein_id}_pocket.json", "w") as f:
-    json.dump(pocket, f)
-PYEOF
+    with open("pocket.json", "w") as f:
+        json.dump(pocket_list, f, indent=4)
+    '
+
     """
+}
+
+process SplitPockets {
+
+    tag "${id}"
+
+    input:
+    tuple val( id ), val( uniprot_id ), path( structure ), path( pocket )
+
+    output:
+    tuple val( id ), val( uniprot_id ), path( structure ), path( "pocket_*.json" )
+
+    script:
+    """
+    #!/usr/bin/env python
+
+    import json
+
+    with open("${pocket}", "r") as f:
+        d = json.load(f)
+        for i, pocket in enumerate(d):
+            with open(f"pocket_{i:02d}.json", "w") as o:
+                json.dump(pocket, o, indent=4)
+    
+    """
+
 }

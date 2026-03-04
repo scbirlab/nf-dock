@@ -1,29 +1,31 @@
 process GNINA_DOCK {
-    /*
-     * Core docking process. Each invocation docks one ligand chunk
-     * against one protein target.
-     *
-     * Outputs: per-compound best Vina score, CNNscore, CNNaffinity.
-     */
-    tag "${protein_id}:${chunk.baseName}"
+    
+    tag "${id}:${chunk[0].baseName}..${chunk[-1].baseName}:${pocket_json.baseName}"
     label 'process_medium'
     cpus params.gnina_cpus
     accelerator params.gnina_gpu ? 1 : 0
 
+    publishDir(
+        "${params.outputs}/docking", 
+        mode: 'copy', 
+        saveAs: { v -> "${id}-${uniprot_id}-${chunk[0].baseName}-${chunk[-1].baseName}-${pocket_json.baseName}-${v}"},
+    )
+
     container "gnina/gnina"
 
     input:
-    tuple val(protein_id), val(uniprot_id), path(receptor), path(pocket_json), path(chunk)
+    tuple val( id ), val( uniprot_id ), path(receptor), path( pocket_json ), path( chunk )
 
     output:
-    tuple val(protein_id), val(uniprot_id), path("${protein_id}_${chunk.baseName}_scores.tsv")
+    tuple val( id ), val( uniprot_id ), val( "${chunk[0].baseName}..${chunk[-1].baseName}" ), path( pocket_json ), path( "docked.sdf*" ), emit: main
+    tuple val( id ), path( "gnina.log" ), emit:logs
 
     script:
-    def gpu_flag = params.gnina_gpu ? "" : "--no_gpu"
     """
+    set -euox pipefail
     # Parse pocket center and size from JSON
-    CENTER=\$(python3 -c "import json; d=json.load(open('${pocket_json}')); print(f'{d[\"center\"][0]} {d[\"center\"][1]} {d[\"center\"][2]}')")
-    SIZE=\$(python3 -c "import json; d=json.load(open('${pocket_json}')); print(f'{d[\"size\"][0]} {d[\"size\"][1]} {d[\"size\"][2]}')")
+    CENTER=\$(python3 -c 'import json; d = json.load(open("${pocket_json}")); print(*d["center"])')
+    SIZE=\$(python3 -c 'import json; d = json.load(open("${pocket_json}")); print(*d["size"])')
 
     CX=\$(echo \$CENTER | cut -d' ' -f1)
     CY=\$(echo \$CENTER | cut -d' ' -f2)
@@ -32,44 +34,127 @@ process GNINA_DOCK {
     SY=\$(echo \$SIZE | cut -d' ' -f2)
     SZ=\$(echo \$SIZE | cut -d' ' -f3)
 
+    cat ${chunk} > concat_chunks.sdf
+    obabel concat_chunks.sdf -O concat_cleaned.sdf
+
+    grep -v '^MODEL\\|^ENDMDL' "${receptor}" > receptor_cleaned.pdb
+
     gnina \
-        -r ${receptor} \
-        -l ${chunk} \
+        -r receptor_cleaned.pdb \
+        -l concat_cleaned.sdf \
         --center_x \$CX --center_y \$CY --center_z \$CZ \
         --size_x \$SX --size_y \$SY --size_z \$SZ \
-        --exhaustiveness ${params.gnina_exhaustiveness} \
-        --num_modes ${params.gnina_num_modes} \
-        --cnn ${params.gnina_cnn} \
-        --cpu ${params.gnina_cpus} \
-        ${gpu_flag} \
-        -o docked.sdf.gz \
-        --log scores_raw.log
+        --exhaustiveness "${params.gnina_exhaustiveness}" \
+        --num_modes "${params.gnina_num_modes}" \
+        --cnn "${params.gnina_cnn}" \
+        --cpu "${params.gnina_cpus}" ${params.gnina_gpu ? "" : "--no_gpu"} \
+        -o docked.sdf \
+        --log gnina.log
+    
+    """
+}
 
-    # Parse output SDF for best scores per molecule
-    python3 << 'PYEOF'
-import gzip
-from rdkit import Chem
-from collections import defaultdict
+process Extract_Gnina_scores {
 
-results = defaultdict(lambda: {"vina": 999, "cnnscore": 0, "cnnaffinity": 0})
+    tag "${id}:${chunk_id}:${pocket_json.baseName}"
 
-suppl = Chem.ForwardSDMolSupplier(gzip.open("docked.sdf.gz"))
-for mol in suppl:
-    if mol is None:
-        continue
-    name = mol.GetProp("_Name") if mol.HasProp("_Name") else "unknown"
-    vina = float(mol.GetProp("minimizedAffinity")) if mol.HasProp("minimizedAffinity") else 999
-    cnns = float(mol.GetProp("CNNscore")) if mol.HasProp("CNNscore") else 0
-    cnna = float(mol.GetProp("CNNaffinity")) if mol.HasProp("CNNaffinity") else 0
+    input:
+    tuple val( id ), val( uniprot_id ), val( chunk_id ), path(pocket_json), path( docking )
 
-    # Keep pose with best CNNscore (most likely to be correct)
-    if cnns > results[name]["cnnscore"]:
-        results[name] = {"vina": vina, "cnnscore": cnns, "cnnaffinity": cnna}
+    output:
+    tuple val( id ), val( chunk_id ), path( "scores.tsv" )
 
-with open("${protein_id}_${chunk.baseName}_scores.tsv", "w") as f:
-    f.write("compound_id\\tprotein_id\\tuniprot_id\\tvina_score\\tcnn_score\\tcnn_affinity\\n")
-    for cmpd, scores in results.items():
-        f.write(f"{cmpd}\\t${protein_id}\\t${uniprot_id}\\t{scores['vina']:.3f}\\t{scores['cnnscore']:.4f}\\t{scores['cnnaffinity']:.3f}\\n")
-PYEOF
+    script:
+    """
+    #!/usr/bin/env python
+
+    from functools import partial
+    import gzip
+    import json
+
+    import pandas as pd
+    from rdkit import Chem
+
+    
+    with open("${pocket_json}") as f:
+        d = json.load(f)
+
+    opener = partial(gzip.open if "${docking}".endswith(".gz") else open, mode="rb")
+
+    results = []
+    with opener("${docking}") as f:
+        for i, mol in enumerate(Chem.ForwardSDMolSupplier(f)):
+            if mol is None:
+                continue
+            prop_dict = mol.GetPropsAsDict()
+            results.append({
+                "ligand_name": prop_dict.get("_Name"),
+                "ligand_smiles": prop_dict.get("smiles"),
+                "ligand_zinc_id": prop_dict.get("zinc_id"),
+                "receptor_uniprot_id": "${uniprot_id}",
+                "receptor_pocket_id": d["id"],
+                "receptor_pocket_center": d["center"],
+                "receptor_pocket_size": d["size"],
+                "blind_dock": d["blind"],
+                "pose_id": f"{i:06d}", 
+                "affinity": float(prop_dict.get("minimizedAffinity")), 
+                "cnn_score": float(prop_dict.get("CNNscore")), 
+                "cnn_affinity": float(prop_dict.get("CNNaffinity")),
+                "cnn_affinity_var": float(prop_dict.get("CNNaffinity_variance", 0.)),
+                "cnn_vs": float(prop_dict.get("CNN_VS")),
+            } | prop_dict)
+
+    pd.DataFrame(
+        results,
+    ).to_csv("scores.tsv", index=False, sep="\\t")
+
+    """
+}
+
+process AGGREGATE_SCORES {
+    /*
+     * Concatenate all per-chunk score files into one matrix.
+     * Output: compounds × proteins score matrix (long format + wide pivot).
+     */
+    publishDir "${params.outputs}/docking", mode: 'copy'
+
+    input:
+    path ( score_files, stageAs: 'score_????????/scores.tsv' )
+
+    output:
+    path "score_matrix_long.tsv", emit: scores_long
+    path "score_matrix_wide.tsv", emit: scores_wide
+
+    script:
+    """
+    #!/usr/bin/env python
+
+    from glob import glob
+    import os
+
+    import pandas as pd
+
+    files = glob(os.path.join("score_*", "scores.tsv"))
+    dfs = [pd.read_csv(f, sep="\\t") for f in files]
+    long = pd.concat(dfs, axis=0)
+    long.to_csv("score_matrix_long.tsv", sep="\\t", index=False)
+
+    # Pivot: compounds as rows, proteins as columns, CNNaffinity as values
+    ligand_cols = ["ligand_name", "ligand_smiles", "ligand_zinc_id"]
+    receptor_cols = ["receptor_uniprot_id"]
+    value = "cnn_affinity"
+    wide = (
+        long
+        .sort_values(value)
+        .groupby(ligand_cols + receptor_cols, dropna=False)
+        .tail(1)
+        .pivot(
+            index=ligand_cols,
+            columns=receptor_cols[0],
+            values=value,
+        )
+    )
+    wide.to_csv("score_matrix_wide.tsv", sep="\\t")
+
     """
 }
