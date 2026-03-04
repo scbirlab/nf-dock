@@ -60,6 +60,10 @@ RUN git clone https://github.com/gnina/libmolgrid.git && \
         -DCMAKE_PREFIX_PATH=$MAMBA_ROOT_PREFIX/envs/env \
         -DCMAKE_CUDA_ARCHITECTURES=all \
         -DOPENBABEL3_INCLUDE_DIR=$MAMBA_ROOT_PREFIX/envs/env/include \
+        -DBoost_NO_BOOST_CMAKE=ON \
+        -DBOOST_ROOT=/usr \
+        -DBOOST_LIBRARYDIR=/usr/lib/x86_64-linux-gnu \
+        -DBOOST_INCLUDEDIR=/usr/include \
         .. && \
     make && \
     make install
