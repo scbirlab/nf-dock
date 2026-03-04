@@ -19,7 +19,7 @@ dependencies:
         - biopython
         - pdb-tools
         # - numpy
-        # - pandas
+        - pandas
         - rdkit
         - scikit-learn
         - 'multiqc>=1.21'
