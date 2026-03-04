@@ -64,6 +64,7 @@ RUN git clone https://github.com/gnina/libmolgrid.git && \
         -DBOOST_ROOT=/usr \
         -DBOOST_LIBRARYDIR=/usr/lib/x86_64-linux-gnu \
         -DBOOST_INCLUDEDIR=/usr/include \
+        -DBUILD_PYTHON=OFF \
         .. && \
     make && \
     make install
