@@ -7,6 +7,7 @@ channels:
 dependencies:
     - python>=3.10
     - pip
+    - conda-forge::jq
     # ── Docking ──
     - conda-forge::fpocket
     - conda-forge::openbabel>=3.0  # mol format conversions
