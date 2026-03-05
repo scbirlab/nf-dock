@@ -221,14 +221,10 @@ fetched and docked per row.
 
 The file must have a header with the column names below, and one line per target.
 
-> **Note**: `pdb_id` is required for the pipeline to run correctly. If left blank, the pipeline
-> attempts an AlphaFold-only fallback but this path is not yet stable; always supply either a PDB
-> accession or an `AF2_` prefixed identifier.
-
 | Column | Required | Description |
 | ------ | -------- | ----------- |
 | `protein_id` | Yes | Unique label for this target. Appears in all output filenames and score columns. |
-| `pdb_id` | Yes | PDB accession (e.g. `1RX2`) to fetch from RCSB, or `AF2_<UniProt>` (e.g. `AF2_P0ABQ4`) to fetch the AlphaFold model instead. |
+| `pdb_id` | No | PDB accession (e.g. `1RX2`) to fetch from RCSB, or `AF2_<UniProt>` (e.g. `AF2_P0ABQ4`) to fetch the AlphaFold model instead. If blank, the AlphaFold model is fetched automatically using `uniprot_id`. |
 | `chain` | No | Chain to extract from the PDB file (e.g. `A`). Ignored when fetching AlphaFold models. |
 | `uniprot_id` | Yes | UniProt accession. Carried through to all score output columns. |
 | `organism` | No | Source organism name. Carried through to outputs for annotation. |
@@ -298,6 +294,7 @@ Key columns in `score_matrix_long.tsv`:
 | `receptor_pocket_size` | Docking box dimensions [x, y, z] in Å. |
 | `blind_dock` | `True` if no pocket was detected and whole-protein docking was used instead. |
 | `pose_id` | Sequential pose index within this docking job. |
+| `library_chunk_id` | Index of the ligand batch that produced this pose. |
 | `affinity` | Vinardo affinity score (kcal/mol) for this pose. |
 | `cnn_score` | GNINA CNN pose quality score (higher is better). |
 | `cnn_affinity` | GNINA CNN predicted binding affinity (pKd units, higher is better). |
