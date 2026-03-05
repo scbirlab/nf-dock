@@ -27,8 +27,8 @@ if ( params.help ) {
          Nextflow pipeline to ....
 
          Usage:
-            nextflow run scbirlab/nf-template --sample_sheet <csv> --inputs <dir>
-            nextflow run scbirlab/nf-template -c <config-file>
+            nextflow run scbirlab/nf-dock --sample_sheet <csv> --inputs <dir>
+            nextflow run scbirlab/nf-dock -c <config-file>
 
          Required parameters:
             sample_sheet      Path to a CSV with information about the samples 
@@ -36,6 +36,7 @@ if ( params.help ) {
 
          Optional parameters (with defaults):  
             inputs             Directory containing inputs. Default: "./inputs".
+            outputs            Directory containing outputs. Default: "./outputs".
 
          The parameters can be provided either in the `nextflow.config` file or on the `nextflow run` command.
    
@@ -101,26 +102,33 @@ workflow {
         checkIfExists: true,
     )
         .splitCsv(header: true)
-        .map { row -> tuple( row.protein_id, row.pdb_id, row.chain ? row.chain : "A", row.uniprot_id ) }
+        .map { row -> tuple( 
+            row.protein_id, 
+            row.pdb_id, 
+            row.chain ? row.chain : "A", 
+            row.uniprot_id,
+         ) }
         .set { proteins_ch }
 
     // ── Phase 1: Prepare ──
-    ( params.test ? proteins_ch.take( 5 ) : proteins_ch ) 
+    ( params.test ? proteins_ch.take( 5 ) : proteins_ch )
         | FETCH_STRUCTURES
         | DETECT_POCKET
 
     SplitLigands(
         Channel.fromPath( 
-            "${params.inputs}/${params.ligands_sdf}", 
+            "${params.inputs}/${params.ligands}", 
             checkIfExists: true,
         ),
-        Channel.value( params.test ? 2 : 10 ),
+        Channel.value( params.test ? 1 : params.batch_size ),
     )
     SplitLigands.out
+        // .map { v -> (v.length() <= 1) ? tuple( v ) : v }
         .flatMap { v -> tuple( v.indexed().collect { i, item -> tuple(i, item) } ) }
         .set { all_ligands }
 
     ( params.test ? all_ligands.take( 2 ) : all_ligands )
+        .view()
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──
@@ -128,12 +136,10 @@ workflow {
         | SplitPockets
     SplitPockets.out
         .transpose()
-        .combine( 
-            PREPARE_LIGANDS.out
-        )
+        .combine( PREPARE_LIGANDS.out )
         .set { docking_inputs }
 
-    ( params.test ? docking_inputs.take( 3 ) : docking_inputs )
+    docking_inputs
         | GNINA_DOCK
 
     GNINA_DOCK.out.main

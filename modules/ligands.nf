@@ -13,7 +13,7 @@ process SplitLigands {
     val batch_size
 
     output:
-    path "lib_*"
+    path "lib_*.{sdf,smi}"
 
     script:
     if ( ligands.extension == "smi" ) {

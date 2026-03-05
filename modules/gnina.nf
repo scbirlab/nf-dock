@@ -7,6 +7,7 @@ process GNINA_DOCK {
         "${params.outputs}/docking", 
         mode: 'copy', 
         saveAs: { v -> "${id}-${uniprot_id}-${pocket_json.baseName}-${chunk_id}-${v}"},
+        pattern: "*.{sdf,log}"
     )
 
     container "gnina/gnina"
@@ -44,7 +45,6 @@ process GNINA_DOCK {
         --cnn_scoring rescore \
         --cnn "${params.gnina_cnn}" \
         --pose_sort_order CNNaffinity \
-        --atom_term_data \
         --cpu "${task.cpus}" \
         -o docked.sdf \
         --seed 42 \
