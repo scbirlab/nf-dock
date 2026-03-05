@@ -13,7 +13,7 @@ using [GNINA](https://github.com/gnina/gnina), producing score matrices ready fo
 analysis.
 
 ```
-  sample_sheet.csv         ligands_sdf
+  sample_sheet.csv           ligands
   (protein targets)     (SDF or SMILES)
          │                    │
          ▼                    ▼
@@ -144,7 +144,7 @@ want the pipeline to run. Then run Nextflow.
 ```bash
 nextflow run scbirlab/nf-dock \
     --sample_sheet inputs/sample-sheet.csv \
-    --ligands_sdf library.sdf
+    --ligands library.sdf
 ```
 
 Each time you run the pipeline after the first time, Nextflow will use a locally-cached version
@@ -154,7 +154,7 @@ version of the pipeline, use the `-latest` flag.
 ```bash
 nextflow run scbirlab/nf-dock -latest \
     --sample_sheet inputs/sample-sheet.csv \
-    --ligands_sdf library.sdf
+    --ligands library.sdf
 ```
 
 If you want to run a particular tagged version of the pipeline, such as `v0.0.1`, you can do so
@@ -163,7 +163,7 @@ using
 ```bash
 nextflow run scbirlab/nf-dock -r v0.0.1 \
     --sample_sheet inputs/sample-sheet.csv \
-    --ligands_sdf library.sdf
+    --ligands library.sdf
 ```
 
 For help, use `nextflow run scbirlab/nf-dock --help`.
@@ -176,14 +176,15 @@ will be installed. This may take several minutes.
 The following parameters are required:
 
 - `sample_sheet`: Path to a CSV with information about the protein targets to dock against.
-- `ligands_sdf`: Filename of the compound library file within the `inputs` directory.
+- `ligands`: Filename of the compound library file within the `inputs` directory.
 
 The following parameters have default values which can be overridden if necessary.
 
 | Parameter | Default | Description |
 | --------- | ------- | ----------- |
-| `inputs` | `"inputs"` | Directory containing input files (must contain the `ligands_sdf` file). |
+| `inputs` | `"inputs"` | Directory containing input files (must contain the `ligands` file). |
 | `outputs` | `"output"` | Directory where all pipeline outputs will be written. |
+| `batch_size` | `10` | Number of compounds per ligand batch. Larger batches reduce scheduling overhead; smaller batches increase parallelism. |
 | `gnina_exhaustiveness` | `4` | GNINA search exhaustiveness. Higher values give more thorough sampling at the cost of speed. |
 | `gnina_num_modes` | `3` | Number of binding poses generated per compound per pocket. All poses are retained in the output. |
 | `gnina_cnn` | `"crossdock_default2018_KD_1"` | GNINA CNN model used for rescoring. |
@@ -198,7 +199,7 @@ Here is an example of the `nextflow.config` file:
 ```nextflow
 params {
     sample_sheet = "inputs/sample-sheet.csv"
-    ligands_sdf  = "library.sdf"
+    ligands      = "library.sdf"
 
     gnina_exhaustiveness = 8
     gnina_cnn            = "crossdock_default2018_KD_1"
@@ -210,7 +211,7 @@ Alternatively, you can provide the parameters on the command line:
 ```bash
 nextflow run scbirlab/nf-dock \
     --sample_sheet inputs/sample-sheet.csv \
-    --ligands_sdf library.sdf \
+    --ligands library.sdf \
     --gnina_exhaustiveness 8
 ```
 
