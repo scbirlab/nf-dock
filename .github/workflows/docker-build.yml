@@ -9,6 +9,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref_name, '/') }}
 
     permissions:
       packages: write
