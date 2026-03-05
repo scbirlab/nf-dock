@@ -58,7 +58,7 @@ process FETCH_STRUCTURES {
         pdbfixer prepped0.pdb \
             --verbose \
             --add-atoms=all \
-            --output="prepped.pdb"
+            --output="prepped00.pdb"
 
         grep -v '^MODEL\\|^ENDMDL' "prepped00.pdb" > prepped.pdb
 
