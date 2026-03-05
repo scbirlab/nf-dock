@@ -49,19 +49,19 @@ process SplitLigands {
 
 process PREPARE_LIGANDS {
 
-    tag "${ligands}"
+    tag "${ligands}:chunk=${id}"
 
     publishDir(
         "${params.outputs}/ligands", 
         mode: 'copy', 
-        saveAs: { v -> "${ligands.simpleName}-${v}"},
+        saveAs: { v -> "${ligands.simpleName}-${id}-${v}"},
     )
 
     input:
-    path ligands
+    tuple val( id ), path( ligands )
 
     output:
-    path "mol.sdf"
+    tuple val( id ), path( "mol.sdf" )
 
     script:
     """
@@ -86,7 +86,7 @@ process PREPARE_LIGANDS {
             if mol is None:
                 continue
             if not mol.HasProp("_Name"):
-                mol.SetProp("_Name", f"{i}-{j}")
+                mol.SetProp("_Name", f"${id}-{i}")
             if not mol.HasProp("smiles"):
                 mol.SetProp("smiles", Chem.MolToSmiles(mol))
             # Standardise

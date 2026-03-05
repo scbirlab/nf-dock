@@ -117,7 +117,7 @@ workflow {
         Channel.value( params.test ? 2 : 10 ),
     )
     SplitLigands.out
-        .flatten()
+        .flatMap { v -> tuple( v.indexed().collect { i, item -> tuple(i, item) } ) }
         .set { all_ligands }
 
     ( params.test ? all_ligands.take( 2 ) : all_ligands )
