@@ -114,13 +114,13 @@ workflow {
             "${params.inputs}/${params.ligands_sdf}", 
             checkIfExists: true,
         ),
-        Channel.value( 10 ),
+        Channel.value( params.test ? 2 : 10 ),
     )
     SplitLigands.out
         .flatten()
         .set { all_ligands }
 
-    ( params.test ? all_ligands.take( 10 ) : all_ligands )
+    ( params.test ? all_ligands.take( 2 ) : all_ligands )
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──

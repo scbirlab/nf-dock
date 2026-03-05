@@ -1,6 +1,6 @@
 process SplitLigands {
 
-    tag "${ligands}"
+    tag "${ligands}:batch=${batch_size}"
 
     publishDir(
         "${params.outputs}/ligands/splits", 
