@@ -20,4 +20,5 @@ nextflow run "$script_dir"/.. \
     -work-dir "$script_dir"/work \
     --sample_sheet "$script_dir"/inputs/sample-sheet.csv \
     --inputs "$script_dir"/inputs \
-    --outputs "$script_dir"/outputs
+    --outputs "$script_dir"/outputs \
+    --test

@@ -105,7 +105,7 @@ workflow {
         .set { proteins_ch }
 
     // ── Phase 1: Prepare ──
-    proteins_ch 
+    ( params.test ? proteins_ch.take( 5 ) : proteins_ch ) 
         | FETCH_STRUCTURES
         | DETECT_POCKET
 
@@ -118,6 +118,9 @@ workflow {
     )
     SplitLigands.out
         .flatten()
+        .set { all_ligands }
+
+    ( params.test ? all_ligands.take( 10 ) : all_ligands )
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──
@@ -128,6 +131,9 @@ workflow {
         .combine( 
             PREPARE_LIGANDS.out
         )
+        .set { docking_inputs }
+
+    ( params.test ? docking_inputs.take( 3 ) : docking_inputs )
         | GNINA_DOCK
 
     GNINA_DOCK.out.main

@@ -56,7 +56,7 @@ process DETECT_POCKET {
             cx, cy, cz = sum(xs) / len(xs), sum(ys) / len(ys), sum(zs) / len(zs)
             pad = ${params.box_padding}
             sx, sy, sz = (
-                max(dim) - min(dim) + 2. * pad
+                max(20., max(dim) - min(dim) + 2. * pad)
                 for dim in (xs, ys, zs)
             )
             pocket_list.append({

@@ -1,14 +1,12 @@
 process GNINA_DOCK {
     
-    tag "${id}:${chunk[0].baseName}..${chunk[-1].baseName}:${pocket_json.baseName}"
-    label 'process_medium'
-    cpus params.gnina_cpus
-    accelerator params.gnina_gpu ? 1 : 0
+    tag "${id}:${pocket_json.baseName}"
+    label 'gpu_single'
 
     publishDir(
         "${params.outputs}/docking", 
         mode: 'copy', 
-        saveAs: { v -> "${id}-${uniprot_id}-${chunk[0].baseName}-${chunk[-1].baseName}-${pocket_json.baseName}-${v}"},
+        saveAs: { v -> "${id}-${uniprot_id}-${pocket_json.baseName}-${v}"},
     )
 
     container "gnina/gnina"
@@ -17,7 +15,7 @@ process GNINA_DOCK {
     tuple val( id ), val( uniprot_id ), path(receptor), path( pocket_json ), path( chunk )
 
     output:
-    tuple val( id ), val( uniprot_id ), val( "${chunk[0].baseName}..${chunk[-1].baseName}" ), path( pocket_json ), path( "docked.sdf*" ), emit: main
+    tuple val( id ), val( uniprot_id ), path( pocket_json ), path( "docked.sdf*" ), emit: main
     tuple val( id ), path( "gnina.log" ), emit:logs
 
     script:
@@ -35,20 +33,23 @@ process GNINA_DOCK {
     SZ=\$(echo \$SIZE | cut -d' ' -f3)
 
     cat ${chunk} > concat_chunks.sdf
-    obabel concat_chunks.sdf -O concat_cleaned.sdf
-
-    grep -v '^MODEL\\|^ENDMDL' "${receptor}" > receptor_cleaned.pdb
+    #obabel concat_chunks.sdf -O concat_cleaned.sdf
 
     gnina \
-        -r receptor_cleaned.pdb \
-        -l concat_cleaned.sdf \
+        -r "${receptor}" \
+        -l concat_chunks.sdf \
         --center_x \$CX --center_y \$CY --center_z \$CZ \
         --size_x \$SX --size_y \$SY --size_z \$SZ \
         --exhaustiveness "${params.gnina_exhaustiveness}" \
         --num_modes "${params.gnina_num_modes}" \
+        --scoring vinardo \
+        --cnn_scoring rescore \
         --cnn "${params.gnina_cnn}" \
-        --cpu "${params.gnina_cpus}" ${params.gnina_gpu ? "" : "--no_gpu"} \
+        --pose_sort_order CNNaffinity \
+        --atom_term_data \
+        --cpu "${task.cpus}" \
         -o docked.sdf \
+        --seed 42 \
         --log gnina.log
     
     """
@@ -59,10 +60,10 @@ process Extract_Gnina_scores {
     tag "${id}:${chunk_id}:${pocket_json.baseName}"
 
     input:
-    tuple val( id ), val( uniprot_id ), val( chunk_id ), path(pocket_json), path( docking )
+    tuple val( id ), val( uniprot_id ), path(pocket_json), path( docking )
 
     output:
-    tuple val( id ), val( chunk_id ), path( "scores.tsv" )
+    tuple val( id ), path( "scores.tsv" )
 
     script:
     """

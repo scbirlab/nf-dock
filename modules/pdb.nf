@@ -3,7 +3,7 @@ process FETCH_STRUCTURES {
      * For each protein: fetch PDB structure (or AF2 model),
      * extract the relevant chain, remove waters/ligands.
      */
-    tag "${id}"
+    tag "${id}:PDB=${pdb_id}:UniProt=${uniprot_id}"
 
     publishDir(
         "${params.outputs}/receptors", 
@@ -41,10 +41,13 @@ process FETCH_STRUCTURES {
         pdbfixer prepped0.pdb \
             --verbose \
             --add-atoms=all \
-            --output="prepped.pdb"
+            --output="prepped00.pdb"
+
+        grep -v '^MODEL\\|^ENDMDL' "prepped00.pdb" > prepped.pdb
 
         """
-    } else {
+    } 
+    else {
         """
         set -euox pipefail
 
@@ -56,6 +59,8 @@ process FETCH_STRUCTURES {
             --verbose \
             --add-atoms=all \
             --output="prepped.pdb"
+
+        grep -v '^MODEL\\|^ENDMDL' "prepped00.pdb" > prepped.pdb
 
         """
     }
