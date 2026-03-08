@@ -71,6 +71,9 @@ include {
    SplitPockets
 } from './modules/fpocket.nf'
 include {
+   PocketDetect_P2Rank;
+} from './modules/p2rank.nf'
+include {
     SplitLigands;
     PREPARE_LIGANDS
 } from './modules/ligands.nf'
@@ -113,7 +116,7 @@ workflow {
     // ── Phase 1: Prepare ──
     ( params.test ? proteins_ch.take( 5 ) : proteins_ch )
         | FETCH_STRUCTURES
-        | DETECT_POCKET
+        | (params.fpocket ? DETECT_POCKET : PocketDetect_P2Rank)
 
     SplitLigands(
         Channel.fromPath( 
@@ -128,7 +131,6 @@ workflow {
         .set { all_ligands }
 
     ( params.test ? all_ligands.take( 2 ) : all_ligands )
-        .view()
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──

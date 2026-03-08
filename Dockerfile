@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gcc \
     g++ \
+    openjdk-17-jre-headless \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -33,6 +34,13 @@ RUN micromamba create -n env -f /tmp/environment.yml && \
 
 ENV PATH=$MAMBA_ROOT_PREFIX/envs/env/bin:$PATH
 
+ARG P2RANK_VERSION=2.5
+RUN wget -q https://github.com/rdk/p2rank/releases/download/${P2RANK_VERSION}/p2rank_${P2RANK_VERSION}.tar.gz \
+    && tar -xzf p2rank_${P2RANK_VERSION}.tar.gz -C /opt \
+    && rm p2rank_${P2RANK_VERSION}.tar.gz \
+    && ln -s /opt/p2rank_${P2RANK_VERSION}/prank /usr/local/bin/prank
+
 # Smoke test: confirm key tools are on PATH and importable
 RUN fpocket -h 2>&1 | head -1 && \
-    python -c "from rdkit import Chem; print('RDKit', Chem.rdBase.rdkitVersion)"
+    python -c "from rdkit import Chem; print('RDKit', Chem.rdBase.rdkitVersion)" && \
+    prank predict -h
