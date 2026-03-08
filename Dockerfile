@@ -48,4 +48,4 @@ USER 1000
 # Smoke test: confirm key tools are on PATH and importable
 RUN fpocket -h 2>&1 | head -1 && \
     python -c "from rdkit import Chem; print('RDKit', Chem.rdBase.rdkitVersion)" && \
-    prank 2>&1 | grep -q "P2Rank"
+    (prank 2>&1 || true) | grep -q "P2Rank"
