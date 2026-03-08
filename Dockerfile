@@ -44,6 +44,8 @@ RUN mkdir -p /opt/p2rank_${P2RANK_VERSION} \
     && ln -s /opt/p2rank_${P2RANK_VERSION}/prank /usr/local/bin/prank
 USER 1000
 
+ENV PATH=/usr/local/bin/:$PATH
+
 # Smoke test: confirm key tools are on PATH and importable
 RUN fpocket -h 2>&1 | head -1 && \
     python -c "from rdkit import Chem; print('RDKit', Chem.rdBase.rdkitVersion)" && \
