@@ -34,12 +34,14 @@ RUN micromamba create -n env -f /tmp/environment.yml && \
 
 ENV PATH=$MAMBA_ROOT_PREFIX/envs/env/bin:$PATH
 
+USER root
 ARG P2RANK_VERSION=2.5
 RUN curl -fsSL "https://github.com/rdk/p2rank/releases/download/${P2RANK_VERSION}/p2rank_${P2RANK_VERSION}.tar.gz" \
         -o p2rank_${P2RANK_VERSION}.tar.gz \
     && tar -xzf p2rank_${P2RANK_VERSION}.tar.gz -C /opt \
     && rm p2rank_${P2RANK_VERSION}.tar.gz \
     && ln -s /opt/p2rank_${P2RANK_VERSION}/prank /usr/local/bin/prank
+USER 1000
 
 # Smoke test: confirm key tools are on PATH and importable
 RUN fpocket -h 2>&1 | head -1 && \
