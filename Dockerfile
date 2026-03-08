@@ -39,7 +39,7 @@ ARG P2RANK_VERSION=2.5
 RUN mkdir -p /opt/p2rank_${P2RANK_VERSION} \
     && curl -fsSL "https://github.com/rdk/p2rank/releases/download/${P2RANK_VERSION}/p2rank_${P2RANK_VERSION}.tar.gz" \
         -o p2rank_${P2RANK_VERSION}.tar.gz \
-    && tar -xzf p2rank_${P2RANK_VERSION}.tar.gz -C /opt --strip-components=1 \
+    && tar -xzf p2rank_${P2RANK_VERSION}.tar.gz -C /opt/p2rank_${P2RANK_VERSION} --strip-components=1 \
     && rm p2rank_${P2RANK_VERSION}.tar.gz \
     && ln -s /opt/p2rank_${P2RANK_VERSION}/prank /usr/local/bin/prank
 USER 1000
