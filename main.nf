@@ -117,6 +117,7 @@ workflow {
     ( params.test ? proteins_ch.take( 5 ) : proteins_ch )
         | FETCH_STRUCTURES
         | (params.fpocket ? DETECT_POCKET : PocketDetect_P2Rank)
+        | set { pockets }
 
     SplitLigands(
         Channel.fromPath( 
@@ -134,7 +135,7 @@ workflow {
         | PREPARE_LIGANDS
 
     // ── Phase 2: Dock (all ligand chunks × all proteins) ──
-    DETECT_POCKET.out.main
+    pockets.main
         | SplitPockets
     SplitPockets.out
         .transpose()
