@@ -35,7 +35,7 @@ RUN micromamba create -n env -f /tmp/environment.yml && \
 ENV PATH=$MAMBA_ROOT_PREFIX/envs/env/bin:$PATH
 
 ARG P2RANK_VERSION=2.5
-RUN curl https://github.com/rdk/p2rank/releases/download/${P2RANK_VERSION}/p2rank_${P2RANK_VERSION}.tar.gz \
+RUN curl -fsSL "https://github.com/rdk/p2rank/releases/download/${P2RANK_VERSION}/p2rank_${P2RANK_VERSION}.tar.gz" \
         -o p2rank_${P2RANK_VERSION}.tar.gz \
     && tar -xzf p2rank_${P2RANK_VERSION}.tar.gz -C /opt \
     && rm p2rank_${P2RANK_VERSION}.tar.gz \
