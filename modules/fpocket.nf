@@ -33,7 +33,7 @@ process DETECT_POCKET {
 
     # fpocket outputs to <name>_out/
     out_dir = "*_out"
-    pocket_pdb = sorted(glob(os.path.join(out_dir, "pockets", "pocket*_atm.pdb")))[:3]
+    pocket_pdb = sorted(glob(os.path.join(out_dir, "pockets", "pocket*_atm.pdb")))[:2]
     #pocket_pdb = sorted(glob(os.path.join(out_dir, "*_out.pdb")))
 
     pocket_list = []

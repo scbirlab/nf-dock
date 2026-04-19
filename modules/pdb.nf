@@ -5,6 +5,8 @@ process FETCH_STRUCTURES {
      */
     tag "${id}:PDB=${pdb_id}:UniProt=${uniprot_id}"
 
+    errorStrategy { params.test ? 'terminate' : 'ignore' }
+
     publishDir(
         "${params.outputs}/receptors", 
         mode: 'copy', 

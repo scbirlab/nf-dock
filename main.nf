@@ -80,6 +80,8 @@ include {
 include {
    GNINA_DOCK;
    Extract_Gnina_scores;
+   Concatenate_ligands;
+   Extract_ligand_receptor_poses;
    AGGREGATE_SCORES;
 } from './modules/gnina.nf'
 include {
@@ -127,7 +129,7 @@ workflow {
         Channel.value( params.test ? 1 : params.batch_size ),
     )
     SplitLigands.out
-        // .map { v -> (v.length() <= 1) ? tuple( v ) : v }
+        .map { v -> (v instanceof List) ? v : tuple( v ) }
         .flatMap { v -> tuple( v.indexed().collect { i, item -> tuple(i, item) } ) }
         .set { all_ligands }
 
@@ -144,6 +146,12 @@ workflow {
 
     docking_inputs
         | GNINA_DOCK
+
+    GNINA_DOCK.out.main
+        .groupTuple( by: [0, 1, 3] )
+        .map { v -> tuple( v[0], v[1], v[3], v[4] )}
+        | Concatenate_ligands
+        | Extract_ligand_receptor_poses
 
     GNINA_DOCK.out.main
         | Extract_Gnina_scores

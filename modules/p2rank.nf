@@ -18,7 +18,7 @@ process PocketDetect_P2Rank {
     script:
     """
     prank predict -f "${structure}" -o p2rank_out -c alphafold
-    mv p2rank_out/*.csv info.csv
+    #mv p2rank_out/*.csv info.csv
 
     # Parse top-ranked pocket, extract center + residues
     python -c '
